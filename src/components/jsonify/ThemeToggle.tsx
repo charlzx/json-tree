@@ -1,5 +1,4 @@
 import { Moon, Sun } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 interface ThemeToggleProps {
   isDark: boolean;
@@ -8,15 +7,13 @@ interface ThemeToggleProps {
 
 export function ThemeToggle({ isDark, onToggle }: ThemeToggleProps) {
   return (
-    <Button
-      variant="ghost"
-      size="icon"
+    <button
       onClick={onToggle}
-      className="relative overflow-hidden"
+      className="relative p-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+      aria-label="Toggle theme"
     >
       <Sun className={`h-5 w-5 transition-all ${isDark ? 'rotate-90 scale-0' : 'rotate-0 scale-100'}`} />
-      <Moon className={`absolute h-5 w-5 transition-all ${isDark ? 'rotate-0 scale-100' : '-rotate-90 scale-0'}`} />
-      <span className="sr-only">Toggle theme</span>
-    </Button>
+      <Moon className={`absolute top-2 left-2 h-5 w-5 transition-all ${isDark ? 'rotate-0 scale-100' : '-rotate-90 scale-0'}`} />
+    </button>
   );
 }

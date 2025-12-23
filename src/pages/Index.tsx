@@ -235,6 +235,7 @@ const Index = () => {
 
     setShowTree(true);
     setShowGraph(false);
+    setShowSchema(false);
   }, [showTree, jsonSizeBytes]);
 
   const handleToggleGraph = useCallback(() => {
@@ -250,7 +251,19 @@ const Index = () => {
 
     setShowGraph(true);
     setShowTree(false);
+    setShowSchema(false);
   }, [showGraph, jsonSizeBytes]);
+
+  const handleToggleSchema = useCallback(() => {
+    if (showSchema) {
+      setShowSchema(false);
+      return;
+    }
+
+    setShowSchema(true);
+    setShowTree(false);
+    setShowGraph(false);
+  }, [showSchema]);
 
   return (
     <div 
@@ -298,7 +311,6 @@ const Index = () => {
             </div>
             <div className="text-center">
               <h1 className="text-xl font-bold tracking-tight">JSON Tree</h1>
-              <p className="text-xs text-muted-foreground">Format • Validate • Explore</p>
             </div>
           </div>
           <div className="absolute right-6">
@@ -317,7 +329,7 @@ const Index = () => {
             onToggleHistory={() => setShowHistory(!showHistory)}
             onToggleTree={handleToggleTree}
             onToggleGraph={handleToggleGraph}
-            onToggleSchema={() => setShowSchema(!showSchema)}
+            onToggleSchema={handleToggleSchema}
             isTreeVisible={showTree}
             isGraphVisible={showGraph}
             isSchemaVisible={showSchema}
@@ -330,21 +342,6 @@ const Index = () => {
 
       {/* Main content */}
       <main className="flex flex-1 flex-col gap-4 overflow-hidden p-4">
-
-        {/* Schema validator (collapsible) */}
-        <AnimatePresence>
-          {showSchema && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <SchemaValidator json={json} isJsonValid={validation.valid} />
-            </motion.div>
-          )}
-        </AnimatePresence>
-
         {/* Editor area */}
         <motion.div 
           initial={{ opacity: 0 }}
@@ -354,7 +351,7 @@ const Index = () => {
         >
           {/* Main editor + visualization */}
           <div className="flex flex-1 overflow-hidden">
-            {(showTree || showGraph) && validation.valid && hasContent ? (
+            {(showTree || showGraph || showSchema) && validation.valid && hasContent ? (
               <ResizablePanelGroup direction={splitOrientation} className="h-full">
                 <ResizablePanel defaultSize={50} minSize={30}>
                   <MonacoJsonEditor
@@ -370,7 +367,7 @@ const Index = () => {
                     <div className="h-full flex items-center justify-center bg-card rounded-lg border border-border">
                       <div className="flex flex-col items-center gap-4">
                         <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                        <p className="text-lg font-medium text-muted-foreground">Rendering {showTree ? 'tree' : 'graph'} view...</p>
+                        <p className="text-lg font-medium text-muted-foreground">Rendering {showTree ? 'tree' : showGraph ? 'graph' : 'schema'} view...</p>
                       </div>
                     </div>
                   ) : (
@@ -397,6 +394,21 @@ const Index = () => {
                         className="h-full"
                       >
                         <GraphView nodes={treeNodes} />
+                      </motion.div>
+                    )}
+                    {showSchema && (
+                      <motion.div
+                        key="schema"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.2 }}
+                        className="h-full overflow-auto rounded-lg border border-border bg-card"
+                      >
+                        <SchemaValidator 
+                          json={json} 
+                          isJsonValid={validation.valid}
+                        />
                       </motion.div>
                     )}
                   </AnimatePresence>
