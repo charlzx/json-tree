@@ -288,40 +288,48 @@ const Index = () => {
         </div>
       )}
 
-      {/* Header */}
-      <header className="flex items-center justify-between border-b border-border px-6 py-3">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-            <TreePine className="h-6 w-6 text-primary" />
+      {/* Header with title centered at top and toolbar below */}
+      <header className="border-b border-border">
+        {/* Title Section - Centered */}
+        <div className="flex items-center justify-center gap-3 px-6 py-3 relative">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+              <TreePine className="h-6 w-6 text-primary" />
+            </div>
+            <div className="text-center">
+              <h1 className="text-xl font-bold tracking-tight">JSON Tree</h1>
+              <p className="text-xs text-muted-foreground">Format • Validate • Explore</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-xl font-bold tracking-tight">JSON Tree</h1>
-            <p className="text-xs text-muted-foreground">Format • Validate • Explore</p>
+          <div className="absolute right-6">
+            <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
           </div>
         </div>
-        <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
+        
+        {/* Toolbar Section */}
+        <div className="flex items-center justify-center border-t border-border px-6 py-2">
+          <Toolbar
+            onFormat={handleFormat}
+            onMinify={handleMinify}
+            onUndo={handleUndo}
+            onCopy={handleCopy}
+            onClear={handleClear}
+            onToggleHistory={() => setShowHistory(!showHistory)}
+            onToggleTree={handleToggleTree}
+            onToggleGraph={handleToggleGraph}
+            onToggleSchema={() => setShowSchema(!showSchema)}
+            isTreeVisible={showTree}
+            isGraphVisible={showGraph}
+            isSchemaVisible={showSchema}
+            isValid={validation.valid}
+            hasContent={hasContent}
+            canUndo={canUndo}
+          />
+        </div>
       </header>
 
       {/* Main content */}
       <main className="flex flex-1 flex-col gap-4 overflow-hidden p-4">
-        {/* Toolbar */}
-        <Toolbar
-          onFormat={handleFormat}
-          onMinify={handleMinify}
-          onUndo={handleUndo}
-          onCopy={handleCopy}
-          onClear={handleClear}
-          onToggleHistory={() => setShowHistory(!showHistory)}
-          onToggleTree={handleToggleTree}
-          onToggleGraph={handleToggleGraph}
-          onToggleSchema={() => setShowSchema(!showSchema)}
-          isTreeVisible={showTree}
-          isGraphVisible={showGraph}
-          isSchemaVisible={showSchema}
-          isValid={validation.valid}
-          hasContent={hasContent}
-          canUndo={canUndo}
-        />
 
         {/* Schema validator (collapsible) */}
         <AnimatePresence>

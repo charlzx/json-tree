@@ -24,7 +24,6 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useState } from 'react';
-import { motion } from 'framer-motion';
 
 interface ToolbarProps {
   onFormat: (indent: number) => void;
@@ -70,11 +69,7 @@ export function Toolbar({
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="flex flex-wrap items-center gap-2 rounded-lg glass p-3"
-    >
+    <div className="flex flex-wrap items-center gap-2">
       {/* Format dropdown */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -255,6 +250,6 @@ export function Toolbar({
           <p>Toggle history</p>
         </TooltipContent>
       </Tooltip>
-    </motion.div>
+    </div>
   );
 }
