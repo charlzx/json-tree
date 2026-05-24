@@ -45,8 +45,8 @@ A modern, browser-based JSON editor built specifically for creating, editing, an
 
 ```bash
 # Clone the repository
-git clone https://github.com/charlzx/json-tree.git
-cd json-tree
+git clone https://github.com/charlzx/json-editor.git
+cd json-editor
 
 # Install dependencies
 pnpm install
