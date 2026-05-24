@@ -115,6 +115,7 @@ const Editor = () => {
   const [json, setJson] = useState('');
   const [debouncedJson, setDebouncedJson] = useState('');
   const [previousJson, setPreviousJson] = useState<string | null>(null);
+  const [activeCursorPath, setActiveCursorPath] = useState('root');
 
   // ── UI state ───────────────────────────────────────────────────────────────
   const [showTree, setShowTree] = useState(false);
@@ -420,7 +421,13 @@ const Editor = () => {
             {(showTree || showGraph || showSchema) && validation.valid && hasContent ? (
               <ResizablePanelGroup direction={splitOrientation} className="h-full">
                 <ResizablePanel defaultSize={50} minSize={30}>
-                  <MonacoJsonEditor value={json} onChange={setJson} errorLine={validation.error?.line} />
+                  <MonacoJsonEditor
+                    value={json}
+                    onChange={setJson}
+                    errorLine={validation.error?.line}
+                    onCursorPathChange={setActiveCursorPath}
+                    treeNodes={treeNodes}
+                  />
                 </ResizablePanel>
                 <ResizableHandle withHandle className={splitOrientation === 'horizontal' ? 'mx-2' : 'my-2'} />
                 <ResizablePanel defaultSize={50} minSize={25}>
@@ -458,14 +465,25 @@ const Editor = () => {
               </ResizablePanelGroup>
             ) : (
               <div className="flex-1">
-                <MonacoJsonEditor value={json} onChange={setJson} errorLine={validation.error?.line} />
+                <MonacoJsonEditor
+                  value={json}
+                  onChange={setJson}
+                  errorLine={validation.error?.line}
+                  onCursorPathChange={setActiveCursorPath}
+                  treeNodes={treeNodes}
+                />
               </div>
             )}
           </div>
         </motion.div>
 
         {/* Status bar */}
-        <StatusBar validation={validation} stats={stats} hasContent={hasContent} />
+        <StatusBar
+          validation={validation}
+          stats={stats}
+          hasContent={hasContent}
+          currentPath={activeCursorPath}
+        />
       </main>
 
       {/* Floating Action Buttons */}

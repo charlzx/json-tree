@@ -1,18 +1,26 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import Editor, { OnMount } from '@monaco-editor/react';
 import type * as Monaco from 'monaco-editor';
+import { getJsonPathAtLine, TreeNode } from '@/lib/jsonUtils';
 
 interface MonacoJsonEditorProps {
   value: string;
   onChange: (value: string) => void;
   errorLine?: number;
+  onCursorPathChange?: (path: string) => void;
+  treeNodes?: TreeNode[];
 }
 
-export function MonacoJsonEditor({ value, onChange, errorLine }: MonacoJsonEditorProps) {
+export function MonacoJsonEditor({ value, onChange, errorLine, onCursorPathChange, treeNodes }: MonacoJsonEditorProps) {
   const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
+  const [cursorLine, setCursorLine] = useState(1);
 
   const handleEditorDidMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
+
+    editor.onDidChangeCursorPosition((e) => {
+      setCursorLine(e.position.lineNumber);
+    });
 
     // Configure JSON language features
     monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
@@ -118,6 +126,13 @@ export function MonacoJsonEditor({ value, onChange, errorLine }: MonacoJsonEdito
 
     return () => observer.disconnect();
   }, []);
+
+  useEffect(() => {
+    if (onCursorPathChange && treeNodes && value) {
+      const path = getJsonPathAtLine(value, treeNodes, cursorLine);
+      onCursorPathChange(path);
+    }
+  }, [value, treeNodes, cursorLine, onCursorPathChange]);
 
   return (
     <div className="h-full w-full rounded-lg overflow-hidden border border-border">

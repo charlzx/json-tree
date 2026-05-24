@@ -1,4 +1,4 @@
-import { CheckCircle2, XCircle, AlertCircle, FileJson, Layers, Hash } from 'lucide-react';
+import { CheckCircle2, XCircle, AlertCircle, FileJson, Layers, Hash, Copy } from 'lucide-react';
 import { JsonStats, ValidationResult } from '@/lib/jsonUtils';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
@@ -7,9 +7,10 @@ interface StatusBarProps {
   validation: ValidationResult;
   stats: JsonStats;
   hasContent: boolean;
+  currentPath?: string;
 }
 
-export function StatusBar({ validation, stats, hasContent }: StatusBarProps) {
+export function StatusBar({ validation, stats, hasContent, currentPath }: StatusBarProps) {
   return (
     <div className="flex items-center justify-between rounded-lg border border-border glass px-4 py-3 text-sm">
       <div className="flex items-center gap-3">
@@ -45,6 +46,25 @@ export function StatusBar({ validation, stats, hasContent }: StatusBarProps) {
                 : validation.error?.message}
             </span>
           </motion.div>
+        )}
+
+        {hasContent && validation.valid && currentPath && (
+          <div className="hidden md:flex items-center gap-2 border-l border-border/80 pl-3">
+            <span className="text-xs text-muted-foreground font-medium">Path:</span>
+            <code className="bg-muted/80 border border-border px-1.5 py-0.5 rounded text-xs text-foreground font-mono select-all flex items-center gap-1.5">
+              {currentPath}
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(currentPath);
+                  import('sonner').then(m => m.toast.success('Path copied!'));
+                }}
+                className="hover:text-accent transition-colors cursor-pointer"
+                title="Copy Path"
+              >
+                <Copy className="h-3 w-3" />
+              </button>
+            </code>
+          </div>
         )}
       </div>
 
