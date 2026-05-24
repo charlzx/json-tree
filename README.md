@@ -1,36 +1,37 @@
-# JSON Tree Visualizer
+# JSON Editor
 
-A modern, feature-rich JSON editor and visualizer built with React, TypeScript, and Vite. Transform, validate, and visualize JSON data with an intuitive interface and powerful tools.
+A premium, modern, and feature-rich JSON editor, dashboard, and visualizer built with React, TypeScript, and Vite. Designed with a sleek Vercel-inspired dark-first aesthetic, it lets you seamlessly organize multiple JSON projects in local storage, validate structures in real time, and map complex relationships with a custom interactive graph system.
 
+---
 
-## Features
+## ✨ Features
 
-### Core Functionality
-- **JSON Editor**: Syntax-highlighted editor with real-time validation
-- **Tree Visualization**: Interactive tree view of JSON structure with expand/collapse
-- **Graph View**: Visual graph representation of JSON relationships
-- **Format & Minify**: One-click formatting and minification
-- **Validation**: Real-time JSON syntax validation with error highlighting
+### 📁 Project Dashboard & Import
+- **Vercel-style List View**: Browse and manage your local JSON projects with details on validity, size, and last updated time.
+- **Local Persistence**: All projects are automatically saved locally inside your browser's `localStorage`.
+- **Fast Import JSON**: Drop JSON files or click to import files directly, immediately creating a project.
+- **One-click Blank Canvas**: Instant blank project creation with customizable smart templates (Empty Object, Empty Array, Sample User).
 
-### Advanced Tools
-- **Schema Validation**: Validate JSON against custom JSON schemas
-- **History Panel**: Track and restore previous JSON edits with timestamps
-- **Share Dialog**: Generate shareable links for your JSON data
-- **Search & Filter**: Quick search within JSON structure
-- **Statistics**: View detailed JSON statistics (size, depth, node count)
+### ✍️ Core Editor & Visualization
+- **Monaco JSON Editor**: Industrial-grade syntax highlighting, autocomplete, and real-time linting.
+- **Infinite Grid Graph Showcase**: Custom-built interactive graph rendering with a dotted infinite pattern canvas. Highlight ancestor paths up to the root in glowing colors when you click on a node.
+- **Interactive Tree View**: Traditional hierarchical tree representation with quick expand/collapse toggle states.
+- **Format & Minify**: One-click code formatting (2 spaces, 4 spaces, tabs) and minification.
+- **Schema Validator**: Validate JSON data structures against custom JSON Schemas.
+- **Interactive Status Bar**: Real-time stats on depth, lines, byte size, and keys count.
 
-### User Experience
-- **Responsive Layout**: Resizable panels for optimal workspace
-- **Drag & Drop**: Drop JSON files directly into the editor
-- **Copy to Clipboard**: Quick copy for formatted or minified JSON
+### 📱 Responsive Desktop Experience
+- **Desktop Required Overlay**: Built-in responsive block overlay for mobile and portrait tablet viewports (`lg:hidden`). Restricts usage to horizontal resolutions designed for advanced split editing.
 
-## Installation
+---
+
+## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 18+ 
+- Node.js 18+
 - pnpm (recommended) or npm
 
-### Setup
+### Installation & Run
 
 ```bash
 # Clone the repository
@@ -44,39 +45,26 @@ pnpm install
 pnpm dev
 ```
 
-The app will be available at `http://localhost:5173`
+The app will launch at `http://localhost:5173`.
 
-## Available Scripts
+---
+
+## 🛠️ Available Scripts
 
 ```bash
-# Development
-pnpm dev              # Start dev server with HMR
-
-# Build
-pnpm build            # Production build
-pnpm build:dev        # Development build
-
-# Preview
+pnpm dev              # Start dev server with Hot Module Replacement
+pnpm build            # Production build compilation
+pnpm build:dev        # Development build compilation
 pnpm preview          # Preview production build locally
-
-# Code Quality
-pnpm lint             # Run ESLint
+pnpm lint             # Run ESLint check
 ```
 
-## Contributing
+---
 
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
+## 📝 License
 
 This project is licensed under the MIT License.
 
 ---
 
-Made by [Charlzx](https://github.com/charlzx)
+Made with 🖤 by [Charlzx](https://github.com/charlzx)
