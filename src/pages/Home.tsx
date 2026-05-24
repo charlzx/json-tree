@@ -51,9 +51,7 @@ function ProjectRow({ project, onOpen, onDelete }: ProjectRowProps) {
       className="group flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border bg-card/20 px-4 py-4.5 hover:bg-muted/30 transition-all duration-150 cursor-pointer first:rounded-t-lg last:rounded-b-lg last:border-b-0"
     >
       <div className="flex items-center gap-3 min-w-0">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted border border-border group-hover:border-foreground/20 transition-colors">
-          <FileJson className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-        </span>
+        <FileJson className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors shrink-0" />
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="truncate font-medium text-foreground text-sm leading-none">
