@@ -21,10 +21,10 @@ interface NodePosition {
   isExpanded: boolean;
 }
 
-const NODE_WIDTH = 190;
-const NODE_HEIGHT = 48;
-const HORIZONTAL_SPACING = 240;
-const VERTICAL_SPACING = 68;
+const NODE_WIDTH = 200;
+const NODE_HEIGHT = 50;
+const HORIZONTAL_SPACING = 250;
+const VERTICAL_SPACING = 70;
 
 export function GraphView({ nodes, onNodeDoubleClick }: GraphViewProps) {
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set(['root']));
@@ -397,7 +397,7 @@ export function GraphView({ nodes, onNodeDoubleClick }: GraphViewProps) {
                     y="-4"
                     width={NODE_WIDTH + 8}
                     height={NODE_HEIGHT + 8}
-                    rx="12"
+                    rx="29"
                     fill="none"
                     stroke={isSelected ? getNodeColor(node.type) : 'hsl(var(--accent))'}
                     strokeWidth="1.5"
@@ -405,118 +405,106 @@ export function GraphView({ nodes, onNodeDoubleClick }: GraphViewProps) {
                   />
                 )}
 
-                {/* Node Box */}
+                {/* Node Box Capsule */}
                 <rect
                   width={NODE_WIDTH}
                   height={NODE_HEIGHT}
-                  rx="10"
+                  rx="25"
                   fill="hsl(var(--card))"
-                  stroke={isSelected ? getNodeColor(node.type) : (isActive ? 'hsl(var(--accent))' : 'hsl(var(--border))')}
-                  strokeWidth={isSelected ? 2 : 1}
-                  className="transition-all duration-200 fill-card group-hover:stroke-foreground/30"
+                  stroke={isSelected ? getNodeColor(node.type) : (isActive ? 'hsl(var(--accent))' : 'hsl(var(--border)/70%)')}
+                  strokeWidth={isSelected ? 1.5 : 1}
+                  className="transition-all duration-200 fill-card backdrop-blur-md fill-card/85 dark:fill-card/65 group-hover:stroke-foreground/30"
+                  style={{
+                    filter: isSelected ? `drop-shadow(0 0 5px ${getNodeColor(node.type)}30)` : 'none'
+                  }}
                 />
 
-                {/* Vertical Type Ribbon Accent */}
-                <rect
-                  x="0"
-                  y="0"
-                  width="5"
-                  height={NODE_HEIGHT}
-                  rx="10"
-                  ry="0"
-                  fill={getNodeColor(node.type)}
-                  clipPath="inset(0 0 0 0 round 10px 0 0 10px)"
-                />
-                {/* Make it flat on the inner right side */}
-                <rect
-                  x="0"
-                  y="0"
-                  width="5"
-                  height={NODE_HEIGHT}
-                  fill={getNodeColor(node.type)}
+                {/* Circular Type Badge Ring */}
+                <circle
+                  cx="24"
+                  cy="25"
+                  r="13"
+                  fill="hsl(var(--muted)/40%)"
+                  stroke={getNodeColor(node.type)}
+                  strokeWidth="1.5"
+                  className="transition-all duration-200 group-hover:scale-105"
                 />
 
-                {/* Type Abbreviation Badge Box */}
-                <rect
-                  x="14"
-                  y="14"
-                  width="32"
-                  height="20"
-                  rx="5"
-                  fill="hsl(var(--muted)/80)"
-                  className="group-hover:fill-muted transition-colors"
-                />
-
-                {/* Type Abbreviation Text */}
+                {/* Type Abbreviation Glyphs */}
                 <text
-                  x="30"
-                  y="27"
+                  x="24"
+                  y="28"
                   textAnchor="middle"
-                  fontSize="9"
+                  fontSize="9.5"
                   fontWeight="700"
                   fontFamily="monospace"
                   fill={getNodeColor(node.type)}
+                  className="select-none"
                 >
                   {getTypeAbbreviation(node.type)}
                 </text>
 
                 {/* Key Name Text */}
                 <text
-                  x="56"
-                  y="23"
-                  fontSize="11"
+                  x="48"
+                  y="22"
+                  fontSize="11.5"
                   fontWeight="600"
                   fontFamily="var(--font-sans), system-ui"
                   fill="hsl(var(--foreground))"
                 >
-                  {node.key ? (node.key.length > 14 ? node.key.slice(0, 14) + '…' : node.key) : 'JSON'}
+                  {node.key ? (node.key.length > 15 ? node.key.slice(0, 15) + '…' : node.key) : 'JSON'}
                 </text>
 
                 {/* Value Preview Text */}
                 <text
-                  x="56"
-                  y="37"
-                  fontSize="10"
+                  x="48"
+                  y="36"
+                  fontSize="9.5"
                   fontFamily="monospace"
                   fill="hsl(var(--muted-foreground))"
                 >
                   {getValuePreview(node)}
                 </text>
 
-                {/* Expand / Collapse Button */}
+                {/* Expand / Collapse Circular Floating Button */}
                 {hasChildren && (
                   <g
-                    transform={`translate(${NODE_WIDTH - 24}, ${(NODE_HEIGHT - 18) / 2})`}
+                    transform={`translate(${NODE_WIDTH - 28}, ${(NODE_HEIGHT - 20) / 2})`}
                     onClick={(e) => {
                       e.stopPropagation();
                       toggleExpand(node.path);
                     }}
-                    className="expand-btn cursor-pointer"
+                    className="expand-btn cursor-pointer group/btn"
                   >
-                    <rect
-                      width="18"
-                      height="18"
-                      rx="4"
-                      fill="hsl(var(--muted)/80)"
-                      className="hover:fill-[hsl(var(--foreground)/15)] transition-colors fill-muted/80"
+                    <circle
+                      cx="10"
+                      cy="10"
+                      r="10"
+                      fill="hsl(var(--muted)/80%)"
+                      stroke="hsl(var(--border)/90%)"
+                      strokeWidth="1"
+                      className="transition-all duration-200 group-hover/btn:fill-primary group-hover/btn:stroke-primary-foreground fill-muted/80"
                     />
                     {isExpanded ? (
                       <ChevronDown
-                        x="2"
-                        y="2"
+                        x="3"
+                        y="3"
                         width="14"
                         height="14"
                         stroke="hsl(var(--foreground))"
-                        strokeWidth="2"
+                        className="group-hover/btn:stroke-primary-foreground transition-colors"
+                        strokeWidth="2.5"
                       />
                     ) : (
                       <ChevronRight
-                        x="2"
-                        y="2"
+                        x="3"
+                        y="3"
                         width="14"
                         height="14"
                         stroke="hsl(var(--foreground))"
-                        strokeWidth="2"
+                        className="group-hover/btn:stroke-primary-foreground transition-colors"
+                        strokeWidth="2.5"
                       />
                     )}
                   </g>
