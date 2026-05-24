@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef, useTransition } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { TreePine, Maximize, Minimize, RotateCw, Loader2, ArrowLeft, Pencil, Check, X, Monitor } from 'lucide-react';
+import { TreePine, Maximize, Minimize, RotateCw, Loader2, ArrowLeft, Pencil, Check, X, Monitor, Clock } from 'lucide-react';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { ThemeToggle } from '@/components/jsonify/ThemeToggle';
 import { MonacoJsonEditor } from '@/components/jsonify/MonacoJsonEditor';
@@ -9,6 +9,7 @@ import { StatusBar } from '@/components/jsonify/StatusBar';
 import { TreeView } from '@/components/jsonify/TreeView';
 import { GraphView } from '@/components/jsonify/GraphView';
 import { SchemaValidator } from '@/components/jsonify/SchemaValidator';
+import { VersionHistoryPanel } from '@/components/jsonify/VersionHistoryPanel';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/hooks/useTheme';
 import { useProjects } from '@/hooks/useProjects';
@@ -104,7 +105,14 @@ const Editor = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { isDark, toggleTheme } = useTheme();
-  const { getProject, updateProject } = useProjects();
+  const {
+    projects,
+    getProject,
+    updateProject,
+    createCheckpoint,
+    deleteCheckpoint,
+    restoreCheckpoint,
+  } = useProjects();
   const viewContainerRef = useRef<HTMLDivElement>(null);
   const visualizationWarningShown = useRef(false);
   const [isPending, startTransition] = useTransition();
@@ -121,6 +129,7 @@ const Editor = () => {
   const [showTree, setShowTree] = useState(false);
   const [showGraph, setShowGraph] = useState(false);
   const [showSchema, setShowSchema] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [splitOrientation, setSplitOrientation] = useState<'horizontal' | 'vertical'>('horizontal');
@@ -175,6 +184,7 @@ const Editor = () => {
   }, []);
 
   // ── Derived state ──────────────────────────────────────────────────────────
+  const activeProject = useMemo(() => projects.find(p => p.id === id) || null, [projects, id]);
   const validation = useMemo(() => validateJson(debouncedJson), [debouncedJson]);
   const stats = useMemo(() => getJsonStats(debouncedJson, validation.parsed), [debouncedJson, validation.parsed]);
   const jsonSizeBytes = useMemo(() => new Blob([debouncedJson]).size, [debouncedJson]);
@@ -275,13 +285,59 @@ const Editor = () => {
     }
   }, [json]);
 
+  const handleRename = useCallback((newName: string) => {
+    if (!id) return;
+    setProjectName(newName);
+    updateProject(id, { name: newName });
+    toast.success('Project renamed');
+  }, [id, updateProject]);
+
+  const handleSaveCheckpoint = useCallback((name: string) => {
+    if (!id) return;
+    createCheckpoint(id, name);
+    toast.success('Version checkpoint saved!');
+  }, [id, createCheckpoint]);
+
+  const handleDeleteCheckpoint = useCallback((versionId: string) => {
+    if (!id) return;
+    deleteCheckpoint(id, versionId);
+    toast.success('Version checkpoint deleted.');
+  }, [id, deleteCheckpoint]);
+
+  const handleRestoreCheckpoint = useCallback((version: any) => {
+    if (!id) return;
+    restoreCheckpoint(id, version);
+    setJson(version.json);
+    setDebouncedJson(version.json);
+    toast.success('Version checkpoint restored!');
+  }, [id, restoreCheckpoint]);
+
+  const lastAutoCheckpointRef = useRef<string>('');
+
+  useEffect(() => {
+    if (!initialLoadDone.current || !id) return;
+    if (!lastAutoCheckpointRef.current) {
+      lastAutoCheckpointRef.current = json;
+      return;
+    }
+
+    const interval = setInterval(() => {
+      if (json !== lastAutoCheckpointRef.current) {
+        createCheckpoint(id, `Auto-Save ${new Date().toLocaleTimeString()}`);
+        lastAutoCheckpointRef.current = json;
+      }
+    }, 10 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [json, id, createCheckpoint]);
+
   const handleToggleTree = useCallback(() => {
     if (showTree) { setShowTree(false); return; }
     if (jsonSizeBytes > VISUALIZATION_LIMIT_BYTES) {
       toast.warning(`Tree view is disabled for files larger than ${formatBytes(VISUALIZATION_LIMIT_BYTES)}.`);
       return;
     }
-    setShowTree(true); setShowGraph(false); setShowSchema(false);
+    setShowTree(true); setShowGraph(false); setShowSchema(false); setShowHistory(false);
   }, [showTree, jsonSizeBytes]);
 
   const handleToggleGraph = useCallback(() => {
@@ -290,20 +346,18 @@ const Editor = () => {
       toast.warning(`Graph view is disabled for files larger than ${formatBytes(VISUALIZATION_LIMIT_BYTES)}.`);
       return;
     }
-    setShowGraph(true); setShowTree(false); setShowSchema(false);
+    setShowGraph(true); setShowTree(false); setShowSchema(false); setShowHistory(false);
   }, [showGraph, jsonSizeBytes]);
 
   const handleToggleSchema = useCallback(() => {
     if (showSchema) { setShowSchema(false); return; }
-    setShowSchema(true); setShowTree(false); setShowGraph(false);
+    setShowSchema(true); setShowTree(false); setShowGraph(false); setShowHistory(false);
   }, [showSchema]);
 
-  const handleRename = useCallback((newName: string) => {
-    if (!id) return;
-    setProjectName(newName);
-    updateProject(id, { name: newName });
-    toast.success('Project renamed');
-  }, [id, updateProject]);
+  const handleToggleHistory = useCallback(() => {
+    if (showHistory) { setShowHistory(false); return; }
+    setShowHistory(true); setShowTree(false); setShowGraph(false); setShowSchema(false);
+  }, [showHistory]);
 
   // ── Not found ──────────────────────────────────────────────────────────────
   if (notFound) {
@@ -398,9 +452,11 @@ const Editor = () => {
             onToggleTree={handleToggleTree}
             onToggleGraph={handleToggleGraph}
             onToggleSchema={handleToggleSchema}
+            onToggleHistory={handleToggleHistory}
             isTreeVisible={showTree}
             isGraphVisible={showGraph}
             isSchemaVisible={showSchema}
+            isHistoryVisible={showHistory}
             isValid={validation.valid}
             hasContent={hasContent}
             canUndo={canUndo}
@@ -418,7 +474,7 @@ const Editor = () => {
         >
           {/* Editor + visualization */}
           <div className="flex flex-1 overflow-hidden">
-            {(showTree || showGraph || showSchema) && validation.valid && hasContent ? (
+            {(showTree || showGraph || showSchema || showHistory) && validation.valid && hasContent ? (
               <ResizablePanelGroup direction={splitOrientation} className="h-full">
                 <ResizablePanel defaultSize={50} minSize={30}>
                   <MonacoJsonEditor
@@ -456,6 +512,16 @@ const Editor = () => {
                         {showSchema && (
                           <motion.div key="schema" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }} className="h-full overflow-auto rounded-lg border border-border bg-card">
                             <SchemaValidator json={json} isJsonValid={validation.valid} />
+                          </motion.div>
+                        )}
+                        {showHistory && (
+                          <motion.div key="history" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }} className="h-full overflow-auto rounded-lg border border-border bg-card">
+                            <VersionHistoryPanel
+                              versions={activeProject?.versions || []}
+                              onSaveCheckpoint={handleSaveCheckpoint}
+                              onRestoreCheckpoint={handleRestoreCheckpoint}
+                              onDeleteCheckpoint={handleDeleteCheckpoint}
+                            />
                           </motion.div>
                         )}
                       </AnimatePresence>

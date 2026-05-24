@@ -8,7 +8,8 @@ import {
   TreePine,
   ChevronDown,
   Undo2,
-  GitBranch
+  GitBranch,
+  Clock,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -33,9 +34,11 @@ interface ToolbarProps {
   onToggleTree: () => void;
   onToggleGraph: () => void;
   onToggleSchema: () => void;
+  onToggleHistory: () => void;
   isTreeVisible: boolean;
   isGraphVisible: boolean;
   isSchemaVisible: boolean;
+  isHistoryVisible: boolean;
   isValid: boolean;
   hasContent: boolean;
   canUndo: boolean;
@@ -50,9 +53,11 @@ export function Toolbar({
   onToggleTree,
   onToggleGraph,
   onToggleSchema,
+  onToggleHistory,
   isTreeVisible,
   isGraphVisible,
   isSchemaVisible,
+  isHistoryVisible,
   isValid,
   hasContent,
   canUndo,
@@ -224,6 +229,23 @@ export function Toolbar({
         </TooltipTrigger>
         <TooltipContent>
           <p>Toggle schema validator</p>
+        </TooltipContent>
+      </Tooltip>
+
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button 
+            variant={isHistoryVisible ? 'secondary' : 'outline'}
+            size="sm" 
+            onClick={onToggleHistory}
+            className="gap-1.5 ripple hover-lift"
+          >
+            <Clock className="h-4 w-4" />
+            History
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Toggle version history</p>
         </TooltipContent>
       </Tooltip>
 

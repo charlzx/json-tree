@@ -306,3 +306,26 @@ export function inferJsonSchema(value: unknown): string {
   }
 }
 
+export function getJsonPathAtLine(jsonText: string, treeNodes: TreeNode[], lineNumber: number): string {
+  if (treeNodes.length === 0) return 'root';
+
+  let bestPath = 'root';
+  let bestLine = 1;
+
+  const traverse = (nodes: TreeNode[]) => {
+    for (const node of nodes) {
+      const nodeLine = findJsonLineNumberFromPath(jsonText, node.path);
+      if (nodeLine <= lineNumber && nodeLine >= bestLine) {
+        bestLine = nodeLine;
+        bestPath = node.path;
+      }
+      if (node.children && node.children.length > 0) {
+        traverse(node.children);
+      }
+    }
+  };
+
+  traverse(treeNodes);
+  return bestPath;
+}
+
