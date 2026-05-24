@@ -207,3 +207,102 @@ function getType(value: unknown): TreeNode['type'] {
   if (Array.isArray(value)) return 'array';
   return typeof value as TreeNode['type'];
 }
+
+export function parsePathToSegments(path: string): string[] {
+  if (path === 'root') return [];
+  const cleanPath = path.startsWith('root.') ? path.slice(5) : (path === 'root' ? '' : path);
+  if (!cleanPath) return [];
+
+  const segments: string[] = [];
+  const regex = /([^.\[\]]+)|\[(\d+)\]/g;
+  let match;
+  while ((match = regex.exec(cleanPath)) !== null) {
+    if (match[1] !== undefined) {
+      segments.push(match[1]);
+    } else if (match[2] !== undefined) {
+      segments.push(match[2]);
+    }
+  }
+  return segments;
+}
+
+export function findJsonLineNumberFromPath(jsonText: string, path: string): number {
+  const segments = parsePathToSegments(path);
+  if (segments.length === 0) return 1;
+
+  const lines = jsonText.split('\n');
+  let currentLine = 1;
+  let segmentIndex = 0;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const targetSegment = segments[segmentIndex];
+    if (!targetSegment) break;
+
+    if (/^\d+$/.test(targetSegment)) {
+      segmentIndex++;
+      i--;
+      continue;
+    }
+
+    const keyPattern = new RegExp(`["']${targetSegment}["']\\s*:`);
+    if (keyPattern.test(line)) {
+      currentLine = i + 1;
+      segmentIndex++;
+    }
+  }
+
+  return currentLine;
+}
+
+export function inferJsonSchema(value: unknown): string {
+  const inferNode = (val: unknown): Record<string, unknown> => {
+    if (val === null) {
+      return { type: 'null' };
+    }
+    if (Array.isArray(val)) {
+      const itemsSchema = val.length > 0 ? inferNode(val[0]) : { type: 'string' };
+      return {
+        type: 'array',
+        items: itemsSchema,
+      };
+    }
+    if (typeof val === 'object') {
+      const properties: Record<string, unknown> = {};
+      const required: string[] = [];
+      Object.entries(val).forEach(([key, subVal]) => {
+        properties[key] = inferNode(subVal);
+        required.push(key);
+      });
+      return {
+        type: 'object',
+        properties,
+        required,
+      };
+    }
+    if (typeof val === 'number') {
+      return { type: 'number' };
+    }
+    if (typeof val === 'boolean') {
+      return { type: 'boolean' };
+    }
+    return { type: 'string' };
+  };
+
+  try {
+    const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+    const schemaObj = {
+      $schema: 'http://json-schema.org/draft-07/schema#',
+      title: 'Generated Schema',
+      ...inferNode(parsed),
+    };
+    return JSON.stringify(schemaObj, null, 2);
+  } catch {
+    return JSON.stringify({
+      $schema: 'http://json-schema.org/draft-07/schema#',
+      title: 'Empty Schema',
+      type: 'object',
+    }, null, 2);
+  }
+}
+
